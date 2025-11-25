@@ -15,7 +15,7 @@ public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 16; // 16x16 tile
     final int scale = 3;
    
-    final int tileSize = originalTileSize * scale; // 48x48 tile
+    public final int tileSize = originalTileSize * scale; // 48x48 tile
     final int maxScreenCol = 16;
     final int maxScreenRow = 12;
     final int screenWidth = tileSize * maxScreenCol; // 768 pixels
@@ -122,18 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     public void update() {
-        if (keyH.upPressed) {
-            playerY -= playerSpeed;
-        }
-        if (keyH.downPressed) {
-            playerY += playerSpeed;
-        }
-        if (keyH.leftPressed) {
-            playerX -= playerSpeed;
-        }
-        if (keyH.rightPressed) {
-            playerX += playerSpeed;
-        }
+        player.update();
     }
 
 
@@ -141,11 +130,7 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
        
-        g2.setColor(Color.white);
-
-
-        g2.fillRect(playerX, playerY, tileSize, tileSize);
-
+        player.draw(g2);
 
         g2.dispose();
     }
