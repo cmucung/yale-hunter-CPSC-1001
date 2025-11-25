@@ -105,6 +105,6 @@ public class Rescuer extends Student {
     }
 
     private void unfreezeStudent(String[][] grid, int x, int y) {
-        grid[y][x] = '//string for regular student';
+        grid[y][x] = "//string for regular student";
     }
 }
