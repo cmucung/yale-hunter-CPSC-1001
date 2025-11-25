@@ -6,40 +6,65 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.Rectangle;
+import tile.UtilityTool;
 
 public class Player extends Entity {
     
     GamePanel gp;
     KeyHandler keyH;
 
+    public final int screenX;
+    public final int screenY;
+
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
+
+        screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+
+        solidArea = new Rectangle(0, 0, gp.tileSize, gp.tileSize);
+        solidArea.x = 0;
+        solidArea.y = 0;
+        solidArea.width = 32;
+        solidArea.height = 32;
 
         setDefaultValues();
         getPlayerImage();
     }
 
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        worldX = gp.tileSize * 27;
+        worldY = gp.tileSize * 49;
         speed = 4;
         direction = "down";
     }
 
     public void getPlayerImage() {
+
+        up1 = setup("tim_up_1");
+        up2 = setup("tim_up_2");
+        down1 = setup("tim_down_1");
+        down2 = setup("tim_down_2");
+        left1 = setup("tim_left_1");      
+        left2 = setup("tim_left_2");
+        right1 = setup("tim_right_1");
+        right2 = setup("tim_right_2");
+
+    }
+
+    public BufferedImage setup(String imageName) {
+        UtilityTool uTool = new UtilityTool();
+        BufferedImage image = null;
+
         try {
-            up1 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_up_1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_up_2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_down_1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_down_2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_left_1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_left_2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_right_1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/res/player/tim_right_2.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/res/player/" + imageName + ".png"));
+            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return image;
     }
 
     public void update() {
@@ -47,20 +72,34 @@ public class Player extends Entity {
             keyH.leftPressed == true || keyH.rightPressed == true) {
             if (keyH.upPressed == true) {
                 direction = "up";
-                y -= speed;
-            }
-            if (keyH.downPressed == true) {
+            } else if (keyH.downPressed == true) {
                 direction = "down";
-                y += speed;
-            }
-            if (keyH.leftPressed == true) {
+            } else if (keyH.leftPressed == true) {
                 direction = "left";
-                x -= speed;
-            }
-            if (keyH.rightPressed == true) {
+            } else if (keyH.rightPressed == true) {
                 direction = "right";
-                x += speed;
             }
+            
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+
+            if (collisionOn == false) {
+                switch (direction) {
+                    case "up":
+                        worldY -= speed;
+                        break;
+                    case "down":
+                        worldY += speed;
+                        break;
+                    case "left":
+                        worldX -= speed;
+                        break;
+                    case "right":
+                        worldX += speed;
+                        break;
+                }
+            }
+
             spriteCounter++;
             if(spriteCounter > 12) {
                 if(spriteNum == 1) {
@@ -107,7 +146,7 @@ public class Player extends Entity {
                 break;
         }
 
-        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, null);
     }
 
 }
