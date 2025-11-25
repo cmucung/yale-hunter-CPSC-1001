@@ -3,7 +3,8 @@ import java.util.ArrayList;
 
 public class Professor {
     // position and size
-    private int x, y, speed, width, height;
+    private int x, y;
+    private int size;
     private boolean studentNearby;
 
     // constructor
@@ -16,16 +17,16 @@ public class Professor {
     public void move(char key) {
         switch (Character.toLowerCase(key)) {
             case 'w': // up
-                y -= speed;
+                y -= size;
                 break;
             case 'a': // left
-                x -= speed;
+                x -= size;
                 break;
             case 's': // down
-                y += speed;
+                y += size;
                 break;
             case 'd': // right
-                x += speed;
+                x += size;
                 break;
             default:
                 // other keys - no movement
