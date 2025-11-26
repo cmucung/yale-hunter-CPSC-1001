@@ -3,8 +3,12 @@ import java.util.ArrayList;
 
 //very important question: how to keep track of the scare level of each student, i think that should be an instance variable in sr 
 //this means we need to have a similar scare level method in our student class
+
 //question about the grid: is that the same as the Stringllllgrid //show us the different map you guys are talking about
-//standardize shared variable name, scarelevel, scarecount,
+//standardize shared variable name, scarelevel, scarecount
+
+//how do we envision whena  stdeunt is scared down again after being saved? should it just vanish right away, or should it just be a grey NPC?
+
 
 public class Student{
 
