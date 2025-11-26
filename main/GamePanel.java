@@ -3,6 +3,7 @@ package main;
 import entity.Player;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
@@ -21,6 +22,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     // FPS
     int FPS = 60;
+
+    // TIMER VARIABLES
+    public int gameTimeInSeconds = 180; // 3 minutes we can change with testing
+    // for "adequate" to have a fair chance at winning
+    private int frameCounter = 0;
+    public boolean gameActive = true;
 
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
@@ -112,7 +119,22 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
+        if (gameActive) {
+            player.update();
+        }
+
+        // updating timer
+
+        frameCounter++;
+        if (frameCounter >= FPS) { // A second has passed
+            gameTimeInSeconds--;
+            frameCounter = 0;
+
+            if (gameTimeInSeconds <= 0) {
+                gameActive = false; // Stops the game
+                gameTimeInSeconds = 0; // Timer won't go below 0
+            }
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -121,7 +143,31 @@ public class GamePanel extends JPanel implements Runnable {
 
         player.draw(g2);
 
+        // Draw the timer
+        drawTimer(g2);
+
         g2.dispose();
+    }
+
+    private void drawTimer(Graphics2D g2) {
+        int minutes = gameTimeInSeconds / 60;
+        int seconds = gameTimeInSeconds % 60;
+
+        String timeText = String.format("%02d:%02d", minutes, seconds);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 40));
+        g2.setColor(Color.WHITE);
+
+        int x = screenWidth / 2 - 50;
+        int y = 50;
+
+        g2.drawString(timeText, x, y);
+
+        // Background of clock 
+        g2.setColor(new Color(0,0,0, 150)); // semi-transparent black
+        g2.fillRect(x - 10, y - 35, 120, 45);
+        g2.setColor(Color.WHITE);
+        g2.drawString(timeText, x, y);
     }
 
     public int getScreenWidth() {
