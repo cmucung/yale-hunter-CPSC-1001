@@ -7,6 +7,9 @@ public class Student{
 
     private static Student rescuerStudent = null;
     private int totalNumStudent = 0;
+	private boolean isFrozen = false;
+	private boolean hasBeenSaved = false;
+	
 
     private int x;
     private int y;
@@ -40,6 +43,9 @@ public class Student{
 
     //idea here: if a student has been saved once, it becomes red once it gets up, because it's in a risky state. 
     // If the student is scared to dizziness again, he or she will immeidately be kicked out of the game and disappear
+
+	public boolean scareToFrozen(){
+		
 
     public Direction getMove(String[][] grid){
 
