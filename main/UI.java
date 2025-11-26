@@ -115,7 +115,7 @@ public class UI {
         public void drawTitleScreen() {
             if (titleScreenState == 0) {
                 // BACKGROUND
-                g2.setColor(new Color(70, 120, 80));
+                g2.setColor(new Color(0, 0, 0)); // change change this later
                 g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
                 // TITLE NAME
