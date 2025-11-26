@@ -10,9 +10,9 @@ public class Student{
 
     private static Student rescuerStudent = null;
     private int totalNumStudent = 0;
-	private boolean isFrozen = false;
-	private boolean hasBeenSaved = false;
-	private int scareLevel = 0;
+	protected boolean isFrozen = false;
+	protected boolean hasBeenSaved = false;
+	protected int scareLevel = 0;
 	
 
     private int x;
