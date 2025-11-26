@@ -115,7 +115,7 @@ public class UI {
         public void drawTitleScreen() {
             if (titleScreenState == 0) {
                 // BACKGROUND
-                g2.setColor(new Color(0, 0, 0)); // change change this later
+                g2.setColor(new Color(0, 0, 0));
                 g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
                 // TITLE NAME
@@ -138,7 +138,7 @@ public class UI {
                     g2.drawString(">", x - gp.tileSize, y);
                 }
 
-                text = "LOAD GAME";
+                text = "INSTRUCTIONS";
                 x = getXforCenteredText(text);
                 y += gp.tileSize;
                 g2.drawString(text, x, y);
@@ -185,6 +185,34 @@ public class UI {
                 y += gp.tileSize * 2;
                 g2.drawString(text, x, y);
                 if (commandNum == 2) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+            } else if (titleScreenState == 2) {
+                // INSTRUCTIONS SCREEN
+                g2.setColor(Color.white);
+                g2.setFont(g2.getFont().deriveFont(42F));
+
+                String text = "Instructions";
+                int x = getXforCenteredText(text);
+                int y = gp.tileSize * 3;
+                g2.drawString(text, x, y);
+
+                g2.setFont(g2.getFont().deriveFont(28F));
+                text = "Use W,A,S,D keys to move your professor.";
+                x = getXforCenteredText(text);
+                y += gp.tileSize * 2;
+                g2.drawString(text, x, y);
+
+                text = "Scare all the students before time runs out!";
+                x = getXforCenteredText(text);
+                y += gp.tileSize;
+                g2.drawString(text, x, y);
+
+                text= "Back";
+                x = getXforCenteredText(text);
+                y += gp.tileSize * 2;
+                g2.drawString(text, x, y);
+                if (commandNum == 0) {
                     g2.drawString(">", x - gp.tileSize, y);
                 }
             }
