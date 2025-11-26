@@ -16,6 +16,7 @@ public class UI {
     public boolean gameFinished = false;
     int messageCounter = 0;
     public int commandNum = 0;
+    public int titleScreenState = 0; // 0: first screen, 1: second screen
     
     
     double totalTime;
@@ -112,45 +113,83 @@ public class UI {
         }
 
         public void drawTitleScreen() {
-            // BACKGROUND
-            g2.setColor(new Color(70, 120, 80));
-            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+            if (titleScreenState == 0) {
+                // BACKGROUND
+                g2.setColor(new Color(70, 120, 80));
+                g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
-            // TITLE NAME
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
-            String text = "Yale Hunter";
-            int x = getXforCenteredText(text);
-            int y = gp.tileSize * 3;
+                // TITLE NAME
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
+                String text = "Yale Hunter";
+                int x = getXforCenteredText(text);
+                int y = gp.tileSize * 3;
 
-            g2.setColor(Color.white);
-            g2.drawString(text, x, y);
+                g2.setColor(Color.white);
+                g2.drawString(text, x, y);
 
-            // MENU
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 48F));
+                // MENU
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 48F));
 
-            text = "NEW GAME";
-            x = getXforCenteredText(text);
-            y += gp.tileSize * 4;
-            g2.drawString(text, x, y);
-            if (commandNum == 0) {
-                g2.drawString(">", x - gp.tileSize, y);
+                text = "NEW GAME";
+                x = getXforCenteredText(text);
+                y += gp.tileSize * 4;
+                g2.drawString(text, x, y);
+                if (commandNum == 0) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+
+                text = "LOAD GAME";
+                x = getXforCenteredText(text);
+                y += gp.tileSize;
+                g2.drawString(text, x, y);
+                if (commandNum == 1) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+
+                text = "QUIT";
+                x = getXforCenteredText(text);
+                y += gp.tileSize;
+                g2.drawString(text, x, y);
+                if (commandNum == 2) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+            } 
+            else if (titleScreenState == 1) {
+                // PROFESSOR SELECTION SCREEN
+                g2.setColor(Color.white);
+                g2.setFont(g2.getFont().deriveFont(42F));
+
+                String text = "Select Your Professor";
+                int x = getXforCenteredText(text);
+                int y = gp.tileSize * 3;
+                g2.drawString(text, x, y);
+
+                text= "Professor Tim Barron";
+                x = getXforCenteredText(text);
+                y += gp.tileSize * 3;
+                g2.drawString(text, x, y);
+                if (commandNum == 0) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+
+                text= "Professor Ozan Erat";
+                x = getXforCenteredText(text);
+                y += gp.tileSize;
+                g2.drawString(text, x, y);
+                if (commandNum == 1) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
+
+                text= "Back";
+                x = getXforCenteredText(text);
+                y += gp.tileSize * 2;
+                g2.drawString(text, x, y);
+                if (commandNum == 2) {
+                    g2.drawString(">", x - gp.tileSize, y);
+                }
             }
 
-            text = "PICK PROFESSOR";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 1) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
-
-            text = "QUIT";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 2) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+           
         }
 
         public int getXforCenteredText(String text) {
