@@ -1,6 +1,8 @@
 package main;
 
 import entity.Player;
+import tile.TileManager;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -29,9 +31,20 @@ public class GamePanel extends JPanel implements Runnable {
     private int frameCounter = 0;
     public boolean gameActive = true;
 
-    KeyHandler keyH = new KeyHandler();
+    // SYSTEM
+    TileManager titeM = new TileManager(this);
+    KeyHandler keyH = new KeyHandler(this);
+    public UI ui = new UI(this);
     Thread gameThread;
+    public CollisionChecker cChecker = new CollisionChecker(this)
+
+    // ENTITY
     Player player = new Player(this, keyH);
+
+    // GAME STATE
+    public int gameState;
+    public final int titleState = 0;
+    public final int playState = 1;
 
     // Set player's default position
     int playerX = 100;
@@ -44,6 +57,10 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+    }
+
+    public void setUpGame() {
+        gameState = titleState;
     }
 
     public void startGameThread() {
@@ -119,20 +136,18 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        if (gameActive) {
+        if (gameState == playState) {
             player.update();
-        }
+            // updating time
+            frameCounter++;
+            if (frameCounter >= FPS) { // A second has passed
+                gameTimeInSeconds--;
+                frameCounter = 0;
 
-        // updating timer
-
-        frameCounter++;
-        if (frameCounter >= FPS) { // A second has passed
-            gameTimeInSeconds--;
-            frameCounter = 0;
-
-            if (gameTimeInSeconds <= 0) {
-                gameActive = false; // Stops the game
-                gameTimeInSeconds = 0; // Timer won't go below 0
+                if (gameTimeInSeconds <= 0) {
+                    gameActive = false; // Stops the game
+                    gameTimeInSeconds = 0; // Timer won't go below 0
+                }
             }
         }
     }
@@ -141,10 +156,19 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        player.draw(g2);
-
-        // Draw the timer
-        drawTimer(g2);
+        // Draw title screen
+        if (gameState == titleState) {
+            ui.draw(g2);
+        } else {
+            // Draw titles
+            tileM.draw(g2);
+            // Draw player
+            player.draw(g2);
+            // Draw UI
+            ui.draw(g2);
+            // Draw the timer
+            drawTimer(g2);
+        }
 
         g2.dispose();
     }
