@@ -27,6 +27,7 @@ public class Student{
         if (rescuerStudent == null){
 
             //if there is no student created, we create the first student which is the rescuer
+			Rescuer rescuerStudent = new Rescuer();
             rescuerStudent = this;
         }
     }
