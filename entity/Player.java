@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;
 import tile.UtilityTool;
+import java.awt.Color;
 
 public class Player extends Entity {
     
@@ -21,8 +22,8 @@ public class Player extends Entity {
         this.gp = gp;
         this.keyH = keyH;
 
-        screenX = gp.getScreenWidth() / 2 - (gp.tileSize / 2);
-        screenY = gp.getScreenHeight() / 2 - (gp.tileSize / 2);
+        screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
         solidArea = new Rectangle(0, 0, gp.tileSize, gp.tileSize);
         solidArea.x = 0;
