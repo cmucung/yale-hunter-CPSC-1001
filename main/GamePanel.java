@@ -1,55 +1,60 @@
 package main;
+import javax.swing.JPanel;
 
 import entity.Player;
 import tile.TileManager;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import javax.swing.JPanel;
+
 
 public class GamePanel extends JPanel implements Runnable {
     // Game panel code here
     // screen settings
     final int originalTileSize = 16; // 16x16 tile
     final int scale = 3;
-
+   
     public final int tileSize = originalTileSize * scale; // 48x48 tile
-    final int maxScreenCol = 16;
-    final int maxScreenRow = 12;
-    final int screenWidth = tileSize * maxScreenCol; // 768 pixels
-    final int screenHeight = tileSize * maxScreenRow; // 576 pixels
+    public final int maxScreenCol = 16;
+    public final int maxScreenRow = 12;
+    public final int screenWidth = tileSize * maxScreenCol; // 768 pixels
+    public final int screenHeight = tileSize * maxScreenRow; // 576 pixels
+
+    public int maxWorldCol;
+    public int maxWorldRow;
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
+    public final int maxMap = 10;
+    public int currentTimeMap = 0;
+
 
     // FPS
     int FPS = 60;
 
-    // TIMER VARIABLES
-    public int gameTimeInSeconds = 180; // 3 minutes we can change with testing
-    // for "adequate" to have a fair chance at winning
-    private int frameCounter = 0;
-    public boolean gameActive = true;
-
     // SYSTEM
-    TileManager titeM = new TileManager(this);
+    TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler(this);
     public UI ui = new UI(this);
     Thread gameThread;
-    public CollisionChecker cChecker = new CollisionChecker(this)
+    public CollisionChecker cChecker = new CollisionChecker(this);
 
     // ENTITY
-    Player player = new Player(this, keyH);
+    public Player player = new Player(this, keyH);
 
     // GAME STATE
     public int gameState;
     public final int titleState = 0;
     public final int playState = 1;
+    public final int pauseState = 2;
+
 
     // Set player's default position
     int playerX = 100;
     int playerY = 100;
     int playerSpeed = 4;
+
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -59,9 +64,10 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
     }
 
-    public void setUpGame() {
+    public void setupGame() {
         gameState = titleState;
     }
+
 
     public void startGameThread() {
         gameThread = new Thread(this);
@@ -69,42 +75,42 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     /*
-     * @Override
-     * public void run() {
-     * // Game loop code here
-     * double drawInterval = 1000000000 / FPS; // 0.01666 seconds
-     * double nextDrawTime = System.nanoTime() + drawInterval;
-     * 
-     * 
-     * while (gameThread != null) {
-     * 
-     * 
-     * update();
-     * 
-     * 
-     * repaint();
-     * 
-     * 
-     * try {
-     * double remainingTime = nextDrawTime - System.nanoTime();
-     * remainingTime = remainingTime / 1000000;
-     * 
-     * 
-     * if (remainingTime < 0) {
-     * remainingTime = 0;
-     * }
-     * 
-     * 
-     * Thread.sleep((long) remainingTime);
-     * 
-     * 
-     * nextDrawTime += drawInterval;
-     * } catch (InterruptedException e) {
-     * e.printStackTrace();
-     * }
-     * }
-     * }
-     */
+    @Override
+    public void run() {
+        // Game loop code here
+        double drawInterval = 1000000000 / FPS; // 0.01666 seconds
+        double nextDrawTime = System.nanoTime() + drawInterval;
+
+
+        while (gameThread != null) {
+
+
+            update();
+
+
+            repaint();
+
+
+            try {
+                double remainingTime = nextDrawTime - System.nanoTime();
+                remainingTime = remainingTime / 1000000;
+
+
+                if (remainingTime < 0) {
+                    remainingTime = 0;
+                }
+
+
+                Thread.sleep((long) remainingTime);
+
+
+                nextDrawTime += drawInterval;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    } 
+    */
 
     public void run() {
         double drawInterval = 1000000000 / FPS; // 0.01666 seconds
@@ -135,70 +141,31 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+
     public void update() {
         if (gameState == playState) {
             player.update();
-            // updating time
-            frameCounter++;
-            if (frameCounter >= FPS) { // A second has passed
-                gameTimeInSeconds--;
-                frameCounter = 0;
-
-                if (gameTimeInSeconds <= 0) {
-                    gameActive = false; // Stops the game
-                    gameTimeInSeconds = 0; // Timer won't go below 0
-                }
-            }
         }
     }
+
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-
         // Draw title screen
         if (gameState == titleState) {
             ui.draw(g2);
         } else {
-            // Draw titles
+            // Draw tiles first (background)
             tileM.draw(g2);
-            // Draw player
+        
+            // Draw player second (foreground)
             player.draw(g2);
-            // Draw UI
+
+            // Draw UI last (on top of everything)
             ui.draw(g2);
-            // Draw the timer
-            drawTimer(g2);
         }
 
         g2.dispose();
-    }
-
-    private void drawTimer(Graphics2D g2) {
-        int minutes = gameTimeInSeconds / 60;
-        int seconds = gameTimeInSeconds % 60;
-
-        String timeText = String.format("%02d:%02d", minutes, seconds);
-
-        g2.setFont(new Font("Arial", Font.BOLD, 40));
-        g2.setColor(Color.WHITE);
-
-        int x = screenWidth / 2 - 50;
-        int y = 50;
-
-        g2.drawString(timeText, x, y);
-
-        // Background of clock 
-        g2.setColor(new Color(0,0,0, 150)); // semi-transparent black
-        g2.fillRect(x - 10, y - 35, 120, 45);
-        g2.setColor(Color.WHITE);
-        g2.drawString(timeText, x, y);
-    }
-
-    public int getScreenWidth() {
-        return screenWidth;
-    }
-
-    public int getScreenHeight() {
-        return screenHeight;
     }
 }
