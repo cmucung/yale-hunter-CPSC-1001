@@ -2,6 +2,7 @@ package main;
 import javax.swing.JPanel;
 
 import entity.Player;
+import entity.Student;
 import tile.TileManager;
 
 import java.awt.Dimension;
@@ -34,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
     int FPS = 60;
 
     // SYSTEM
-    TileManager tileM = new TileManager(this);
+    public TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler(this);
     public UI ui = new UI(this);
     Thread gameThread;
@@ -42,6 +43,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     // ENTITY
     public Player player = new Player(this, keyH);
+    public Student[] students = new Student[4]; // Array to hold multiple students
 
     // GAME STATE
     public int gameState;
@@ -66,10 +68,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         gameState = titleState;
+        
+        // Initialize students with valid positions
+        for (int i = 0; i < students.length; i++) {
+            students[i] = new Student(this);
+            students[i].setValidPosition();
+        }
     }
 
 
     public void startGameThread() {
+        setupGame();
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -145,6 +154,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (gameState == playState) {
             player.update();
+            
+            // Update all students
+            for (int i = 0; i < students.length; i++) {
+                if (students[i] != null) {
+                    students[i].update();
+                }
+            }
         }
     }
 
@@ -159,6 +175,13 @@ public class GamePanel extends JPanel implements Runnable {
             // Draw tiles first (background)
             tileM.draw(g2);
         
+            // Draw students
+            for (int i = 0; i < students.length; i++) {
+                if (students[i] != null) {
+                    students[i].draw(g2, player);
+                }
+            }
+            
             // Draw player second (foreground)
             player.draw(g2);
 
