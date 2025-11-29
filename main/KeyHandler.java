@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
     GamePanel gp;
     public boolean upPressed, downPressed, leftPressed, rightPressed;
+    public boolean scarePressed;
     
     public KeyHandler(GamePanel gp) {
         this.gp = gp;
@@ -103,6 +104,9 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_D) {
                 rightPressed = true;
             }
+            if (code == KeyEvent.VK_X) {
+                scarePressed = true;
+            }
        }
     }
 
@@ -122,6 +126,9 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_D) {
             rightPressed = false;
+        }
+        if (code == KeyEvent.VK_X) {
+            scarePressed = false;
         }
     }
 }
