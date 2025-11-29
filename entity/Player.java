@@ -12,8 +12,8 @@ import java.awt.Color;
 
 public class Player extends Entity {
     
-    GamePanel gp;
-    KeyHandler keyH;
+    protected GamePanel gp;
+    protected KeyHandler keyH;
 
     public final int screenX;
     public final int screenY;
@@ -60,7 +60,7 @@ public class Player extends Entity {
         BufferedImage image = null;
 
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/res/player/" + imageName + ".png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
             image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
         } catch (IOException e) {
             e.printStackTrace();
