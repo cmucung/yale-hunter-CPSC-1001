@@ -31,7 +31,6 @@ public class Student extends Entity {
     }
 
     public void setDefaultValues() {
-        // Will be set by setValidPosition() method
         speed = 2;
         direction = "down";
     }
@@ -42,7 +41,7 @@ public class Student extends Entity {
         int attempts = 0;
         
         while (!validPosition && attempts < 100) {
-            // Generate random tile coordinates
+            // Generate random tile coordinates so students won't start at the same location
             int randomCol = rand.nextInt(gp.maxWorldCol);
             int randomRow = rand.nextInt(gp.maxWorldRow);
             
@@ -63,7 +62,7 @@ public class Student extends Entity {
             attempts++;
         }
         
-        // Fallback if no valid position found after 100 attempts
+        // if no valid position found after 100 attempts
         if (!validPosition) {
             worldX = gp.tileSize * 25;
             worldY = gp.tileSize * 40;
@@ -71,8 +70,7 @@ public class Student extends Entity {
     }
 
     public void getStudentImage() {
-        // For now, we'll use placeholder images
-        // You can create student sprite images later
+        // using tim sprites as placeholders for now, can change later
         up1 = setup("tim_up_1");
         up2 = setup("tim_up_2");
         down1 = setup("tim_down_1");
@@ -88,7 +86,7 @@ public class Student extends Entity {
         BufferedImage image = null;
 
         try {
-            // Temporarily using player images as placeholder
+            // using player images as placeholder
             image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
             image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
         } catch (IOException e) {
@@ -100,12 +98,12 @@ public class Student extends Entity {
     public void setAction() {
         actionCounter++;
         
-        // Calculate distance to player
+        // calculate distance to player
         int distanceX = Math.abs(worldX - gp.player.worldX);
         int distanceY = Math.abs(worldY - gp.player.worldY);
         int distance = (int) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
         
-        // Detection range in pixels (e.g., 5 tiles)
+        // detection range in pixels (e.g., 5 tiles)
         int detectionRange = gp.tileSize * 5;
         
         if (distance < detectionRange) {
