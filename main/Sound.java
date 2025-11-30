@@ -15,11 +15,12 @@ public class Sound {
     float volume;
 
     public Sound() {
-        soundURL[0] = getClass().getResource("/res/sound/Where My Home Is.wav");
+        soundURL[0] = getClass().getResource("/res/sound/IDV Voice of Spring.wav");
         soundURL[1] = getClass().getResource("/res/sound/Big Egg collect 1.wav");
         soundURL[2] = getClass().getResource("/res/sound/Select 1.wav");
         soundURL[3] = getClass().getResource("/res/sound/Confirm 1.wav");
         soundURL[4] = getClass().getResource("/res/sound/Boss hit 1.wav");
+        soundURL[5] = getClass().getResource("/res/sound/IDV original soundtrack.wav");
     }
 
     public void setFile(int i) {
