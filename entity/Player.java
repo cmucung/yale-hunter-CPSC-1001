@@ -12,8 +12,8 @@ import java.awt.Color;
 
 public class Player extends Entity {
     
-    protected GamePanel gp;
-    protected KeyHandler keyH;
+    GamePanel gp;
+    KeyHandler keyH;
 
     public final int screenX;
     public final int screenY;
@@ -26,8 +26,10 @@ public class Player extends Entity {
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
         solidArea = new Rectangle(0, 0, gp.tileSize, gp.tileSize);
-        solidArea.x = 0;
-        solidArea.y = 0;
+        solidArea.x = 8;
+        solidArea.y = 16;
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
         solidArea.width = 32;
         solidArea.height = 32;
 
@@ -43,16 +45,16 @@ public class Player extends Entity {
     }
 
     public void getPlayerImage() {
-
-        up1 = setup("tim_up_1");
-        up2 = setup("tim_up_2");
-        down1 = setup("tim_down_1");
-        down2 = setup("tim_down_2");
-        left1 = setup("tim_left_1");      
-        left2 = setup("tim_left_2");
-        right1 = setup("tim_right_1");
-        right2 = setup("tim_right_2");
-
+        String character = gp.selectedCharacter;
+        
+        up1 = setup(character + "_up_1");
+        up2 = setup(character + "_up_2");
+        down1 = setup(character + "_down_1");
+        down2 = setup(character + "_down_2");
+        left1 = setup(character + "_left_1");      
+        left2 = setup(character + "_left_2");
+        right1 = setup(character + "_right_1");
+        right2 = setup(character + "_right_2");
     }
 
     public BufferedImage setup(String imageName) {
@@ -60,8 +62,9 @@ public class Player extends Entity {
         BufferedImage image = null;
 
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+            image = ImageIO.read(getClass().getResourceAsStream("/res/player/" + imageName + ".png"));
+            // Scale to collision box size (32x32)
+            image = uTool.scaleImage(image, solidArea.width, solidArea.height);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,6 +72,7 @@ public class Player extends Entity {
     }
 
     public void update() {
+        // MOVEMENT
         if (keyH.upPressed == true || keyH.downPressed == true ||
             keyH.leftPressed == true || keyH.rightPressed == true) {
             if (keyH.upPressed == true) {
@@ -80,10 +84,15 @@ public class Player extends Entity {
             } else if (keyH.rightPressed == true) {
                 direction = "right";
             }
-            
+            // CHECK TILE COLLISION
             collisionOn = false;
             gp.cChecker.checkTile(this);
 
+            // CHECK OBJECT COLLISION
+            int objIndex = gp.cChecker.checkObject(this, true);
+            pickUpObject(objIndex);
+
+            // IF COLLISION IS FALSE, PLAYER CAN MOVE
             if (collisionOn == false) {
                 switch (direction) {
                     case "up":
@@ -110,6 +119,20 @@ public class Player extends Entity {
                 spriteNum = 1;
                 }
             spriteCounter = 0;
+            }
+        }
+    }
+
+    public void pickUpObject(int i) {
+        if (i != 999) {
+            String objectName = gp.obj[i].name;
+
+            switch(objectName) {
+                case "Chest":
+                    gp.playSE(1);
+                    System.out.println("You opened the chest!");
+                    gp.obj[i] = null;
+                    break;
             }
         }
     }
@@ -147,11 +170,16 @@ public class Player extends Entity {
                 break;
         }
 
-        g2.drawImage(image, screenX, screenY, null);
+        // Draw sprite at collision box position
+        g2.drawImage(image, screenX + solidArea.x, screenY + solidArea.y, solidArea.width, solidArea.height, null);
 
         // Draw collision box for debugging
         g2.setColor(Color.red);
         g2.drawRect(screenX + solidArea.x, screenY + solidArea.y, solidArea.width, solidArea.height);
+        
+        // Draw tile boundary for debugging
+        g2.setColor(Color.blue);
+        g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
     }
 
 }
