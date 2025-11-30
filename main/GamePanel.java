@@ -50,6 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
 
     // ENTITY AND OBJECT
+    public String selectedCharacter = "tim"; // "tim" or "ozan"
     public Player player = new Player(this, keyH);
     public SuperObject obj[] = new SuperObject[10];
 
@@ -80,6 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void setupGame() {
         aSetter.setObject();
         gameState = titleState;
+        playMusic(5); // Title screen music
 
         // FOR FULL SCREEN)
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB); // blank screen
