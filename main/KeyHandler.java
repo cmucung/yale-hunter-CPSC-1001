@@ -109,28 +109,33 @@ public class KeyHandler implements KeyListener {
         if (gp.ui.titleScreenState == 0) {
             if (code == KeyEvent.VK_W) {
             gp.ui.commandNum--;
+            gp.playSE(2);
             if (gp.ui.commandNum < 0) {
                 gp.ui.commandNum = 2;
                 }
             } 
             if (code == KeyEvent.VK_S) {
                 gp.ui.commandNum++;
+                gp.playSE(2);
                 if (gp.ui.commandNum > 2) {
                     gp.ui.commandNum = 0;
                    }
             }
             if (code == KeyEvent.VK_ENTER) {
                 if (gp.ui.commandNum == 0) {
+                    gp.playSE(3);
                     gp.ui.titleScreenState = 1;
                     gp.ui.commandNum = 0;
                 }
                 if (gp.ui.commandNum == 1) {
                     // instructions screen
+                    gp.playSE(3);
                     gp.ui.titleScreenState = 2;
                     gp.ui.commandNum = 0;
                 }
                 if (gp.ui.commandNum == 2) {
                     // exit the game
+                    gp.playSE(3);
                     System.exit(0);
                 }
             }
@@ -140,12 +145,14 @@ public class KeyHandler implements KeyListener {
         else if (gp.ui.titleScreenState == 1) {
             if (code == KeyEvent.VK_W) {
                 gp.ui.commandNum--;
+                gp.playSE(2);
                 if (gp.ui.commandNum < 0) {
                     gp.ui.commandNum = 2;
                 }
             } 
             if (code == KeyEvent.VK_S) {
                 gp.ui.commandNum++;
+                gp.playSE(2);
                 if (gp.ui.commandNum > 2) {
                     gp.ui.commandNum = 0;
                 }
@@ -153,16 +160,27 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 // PROFESSOR TIM BARRON
                 if (gp.ui.commandNum == 0) {
+                    gp.playSE(3);
                     System.out.println("Play as Professor Tim Barron");
+                    gp.selectedCharacter = "tim";
+                    gp.player.getPlayerImage();
+                    gp.stopMusic();
                     gp.gameState = gp.playState;
                     gp.playMusic(0);
                 }
                 // PROFESSOR OZAN ERAT
                 if (gp.ui.commandNum == 1) {
+                    gp.playSE(3);
                     System.out.println("Play as Professor Ozan Erat");
+                    gp.selectedCharacter = "ozan";
+                    gp.player.getPlayerImage();
+                    gp.stopMusic();
+                    gp.gameState = gp.playState;
+                    gp.playMusic(0);
                 }
                 // BACK
                 if (gp.ui.commandNum == 2) {
+                    gp.playSE(3);
                     gp.ui.titleScreenState = 0;
                 }
             }
@@ -228,6 +246,7 @@ public class KeyHandler implements KeyListener {
                 gp.ui.titleScreenState = 0;
                 gp.gameState = gp.titleState;
                 gp.restart();
+                gp.playMusic(5);
             }
             gp.playSE(3);
         }
