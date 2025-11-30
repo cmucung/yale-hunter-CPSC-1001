@@ -204,6 +204,8 @@ public class UI {
                 gp.ui.titleScreenState = 0;
                 gp.ui.commandNum = 0;
                 gp.gameState = gp.titleState;
+                gp.restart();
+                gp.playMusic(5);
                 subState = 0;
             }
         }
