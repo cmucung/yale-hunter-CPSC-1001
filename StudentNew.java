@@ -16,7 +16,7 @@ public class Student extends Entity {
     private Random random;
     private int actionCounter = 0;
     
-    // Core State Variables
+    // core state variables
     private boolean isSaving = false;
     private Student targetStudent = null; // student targeted for rescue
     private boolean permanentlyRemoved = false;
