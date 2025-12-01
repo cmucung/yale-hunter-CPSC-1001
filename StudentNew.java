@@ -17,16 +17,17 @@ public class Student extends Entity {
     private int actionCounter = 0;
 
     // =========================================================
-    // 💡 新增的核心状态变量 (Core State Variables)
+    // Core State Variables
     // =========================================================
+    // Rescue State (Dynamic Assignment)
     private boolean isSaving = false;
-    private Student targetStudent = null; // 救援的目标学生
+    private Student targetStudent = null; // The student targeted for rescue
     private boolean permanentlyRemoved = false;
     public int scareLevel = 0; // 0 (Normal), 50 (Risky), 100 (Frozen/Removed)
     public boolean isFrozen = false;
     private boolean hasBeenSaved = false; 
-    private int rescueTimer = 0; // 用于救援计时 (以游戏帧数为单位)
-    private final int RESCUE_DURATION = 3 * 60; // 3秒 * 60 FPS = 180 帧
+    private int rescueTimer = 0; // Timer for rescue duration (in game frames)
+    private final int RESCUE_DURATION = 3 * 60; // 3 seconds * 60 FPS = 180 frames
     // =========================================================
 
     public Student(GamePanel gp) {
@@ -109,35 +110,35 @@ public class Student extends Entity {
     }
     
     // =========================================================
-    // 📢 新增状态与救援方法 (New State and Saving Methods)
+    // New State and Saving Methods
     // =========================================================
     
     /**
-     * 由 GamePanel 调用，分配救援任务给该学生。
+     * Called by GamePanel to assign a rescue mission to this student.
      */
     public void startSaving(Student target) {
         this.isSaving = true;
         this.targetStudent = target;
-        this.speed = 3; // 救援时稍微加速
+        this.speed = 3; // Slight speed increase for rescue
     }
     
     /**
-     * 由 GamePanel 或自身调用，取消救援任务。
+     * Called by GamePanel or self to cancel the rescue mission.
      */
     public void stopSaving() {
         this.isSaving = false;
         this.targetStudent = null;
         this.rescueTimer = 0;
-        this.speed = 2; // 恢复正常速度
+        this.speed = 2; // Restore normal speed
     }
     
     /**
-     * 玩家使用 'X' 键靠近时调用此方法。
+     * Called when the Professor attempts to scare students.
      */
     public void scare() {
         if (permanentlyRemoved) return; 
         
-        // 如果正在救援的学生被吓倒，则救援任务立即取消
+        // If the saving student is scared, the rescue mission is immediately canceled
         if (isSaving) {
             stopSaving();
         }
@@ -146,26 +147,27 @@ public class Student extends Entity {
         
         if (scareLevel >= 100) {
             if (hasBeenSaved) {
-                // 状态 2: 曾被救过，再次被吓 -> 永久移除
+                // State 2: Scared again after being rescued -> Permanently Removed
                 permanentlyRemoved = true; 
                 isFrozen = false;
             } else {
-                // 状态 1: 第一次被吓倒 -> 冰冻
+                // State 1: Scared the first time -> Frozen
                 isFrozen = true;
                 scareLevel = 100;
-                // GamePanel 必须在这里找到并分配新的救星
+                
+                // CRITICAL: Student is frozen. GamePanel must check and assign a new savior.
             }
         }
     }
     
     /**
-     * 目标学生被成功救援后调用此方法。
+     * Called when the target student is successfully rescued.
      */
     public void rescue() {
         if (isFrozen) {
             isFrozen = false;
-            hasBeenSaved = true; // 标记已被救过一次
-            scareLevel = 50;     // 惊吓值重置为 50（危险状态）
+            hasBeenSaved = true; // Mark as saved once
+            scareLevel = 50;     // Reset scare level to 50 (Risky state)
         }
     }
     
@@ -182,7 +184,7 @@ public class Student extends Entity {
     }
     
     /**
-     * 辅助方法：检查学生是否足够靠近目标学生 (在同一格或相邻格)
+     * Helper: Checks if the student is close enough to the target (in the same or adjacent tile)
      */
     private boolean isNear(Student target) {
         int tileDistanceX = Math.abs((worldX + gp.tileSize/2) - (target.worldX + gp.tileSize/2)) / gp.tileSize;
@@ -191,35 +193,35 @@ public class Student extends Entity {
     }
     
     /**
-     * 检查并处理救援学生的计时和移动逻辑
+     * Checks and handles the rescue student's timer and movement logic.
      */
     private void checkRescueStatus() {
         if (isSaving && targetStudent != null) {
             
-            // 1. 检查目标是否仍需救援 
+            // 1. Check if the target still needs rescuing 
             if (!targetStudent.isFrozen() || targetStudent.isPermanentlyRemoved()) {
-                stopSaving(); // 目标已不在或已被救，取消任务
+                stopSaving(); // Target is gone or already rescued, cancel mission
                 return;
             }
 
-            // 2. 检查是否靠近目标并开始救援计时
+            // 2. Check if near target and start rescue timer
             if (isNear(targetStudent)) {
                 if (rescueTimer == 0) {
-                    rescueTimer = 1; // 启动计时器
+                    rescueTimer = 1; // Start the timer
                 } else if (rescueTimer >= RESCUE_DURATION) {
                     targetStudent.rescue();
-                    stopSaving(); // 救援完成，取消任务
+                    stopSaving(); // Rescue complete, cancel mission
                 } else {
                     rescueTimer++;
                 }
-                // 救援时学生保持静止
+                // Rescuer remains stationary
                 direction = "center"; 
             } else {
-                // 3. 移动到目标位置
+                // 3. Move towards the target
                 if (rescueTimer > 0) {
-                    rescueTimer = 0; // 如果移动了，重置计时器
+                    rescueTimer = 0; // If the rescuer moves, reset the timer
                 }
-                // 简单寻路：朝目标移动
+                // Simple pathfinding: move towards the target
                 if (targetStudent.worldX < worldX) direction = "left";
                 else if (targetStudent.worldX > worldX) direction = "right";
                 else if (targetStudent.worldY < worldY) direction = "up";
@@ -231,7 +233,7 @@ public class Student extends Entity {
     // =========================================================
 
     public void setAction() {
-        // NEW: 只有非冰冻、未移除、非救援状态的学生才执行逃跑/随机移动
+        // Only unfrozen, unremoved, and non-saving students execute fleeing/random movement
         if (isFrozen || permanentlyRemoved || isSaving) return; 
         
         actionCounter++;
@@ -428,29 +430,29 @@ public class Student extends Entity {
 
             // NEW: State-based drawing logic (replaces original g2.drawImage)
             if (isFrozen) {
-                // 冰冻状态：绘制灰色/半透明
+                // Frozen State: Draw gray/semi-transparent overlay
                 g2.setColor(new Color(150, 150, 150, 150)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
             } else if (isSaving) {
-                 // 救援状态：绘制一个不同的颜色标记 (例如蓝色)
+                 // Saving State: Draw a different color marker (e.g., blue)
                 g2.setColor(new Color(0, 100, 255, 80)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
                 
-                // 绘制救援计时条
+                // Draw rescue timer bar
                 if (rescueTimer > 0) {
                     g2.setColor(Color.YELLOW);
                     int barWidth = (int)((double)rescueTimer / RESCUE_DURATION * gp.tileSize);
                     g2.fillRect(screenX, screenY - 5, barWidth, 3);
                 }
             } else if (hasBeenSaved) {
-                // 救回状态 (Risky State)：绘制红色滤镜
+                // Rescued State (Risky State): Draw red filter
                 g2.setColor(new Color(255, 0, 0, 50)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
             } else {
-                // 正常状态
+                // Normal State
                 g2.drawImage(image, screenX, screenY, null);
             }
             
