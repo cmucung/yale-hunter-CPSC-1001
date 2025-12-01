@@ -15,20 +15,16 @@ public class Student extends Entity {
     protected GamePanel gp;
     private Random random;
     private int actionCounter = 0;
-
-    // =========================================================
+    
     // Core State Variables
-    // =========================================================
-    // Rescue State (Dynamic Assignment)
     private boolean isSaving = false;
-    private Student targetStudent = null; // The student targeted for rescue
+    private Student targetStudent = null; // student targeted for rescue
     private boolean permanentlyRemoved = false;
     public int scareLevel = 0; // 0 (Normal), 50 (Risky), 100 (Frozen/Removed)
     public boolean isFrozen = false;
     private boolean hasBeenSaved = false; 
-    private int rescueTimer = 0; // Timer for rescue duration (in game frames)
+    private int rescueTimer = 0; // timerfor rescue duration (in game frames)
     private final int RESCUE_DURATION = 3 * 60; // 3 seconds * 60 FPS = 180 frames
-    // =========================================================
 
     public Student(GamePanel gp) {
         this.gp = gp;
@@ -55,19 +51,18 @@ public class Student extends Entity {
         int attempts = 0;
         
         while (!validPosition && attempts < 100) {
-            // Generate random tile coordinates so students won't start at the same location
+            // generate random tile coordinates so students won't start at the same location
             int randomCol = rand.nextInt(gp.maxWorldCol);
             int randomRow = rand.nextInt(gp.maxWorldRow);
             
-            // Convert to world coordinates
+            // convert to world coordinates
             int testX = randomCol * gp.tileSize;
             int testY = randomRow * gp.tileSize;
             
-            // Check if this tile has collision
+            // check if this tile has collision
             int tileNum = gp.tileM.mapTileNum[randomCol][randomRow];
             
             if (!gp.tileM.tile[tileNum].collision) {
-                // Valid position found!
                 worldX = testX;
                 worldY = testY;
                 validPosition = true;
@@ -109,22 +104,14 @@ public class Student extends Entity {
         return image;
     }
     
-    // =========================================================
-    // New State and Saving Methods
-    // =========================================================
-    
-    /**
-     * Called by GamePanel to assign a rescue mission to this student.
-     */
+    // new state and saving methods
     public void startSaving(Student target) {
         this.isSaving = true;
         this.targetStudent = target;
-        this.speed = 3; // Slight speed increase for rescue
+        this.speed = 3; // slight speed increase for rescue
     }
     
-    /**
-     * Called by GamePanel or self to cancel the rescue mission.
-     */
+    // Called by GamePanel or self to cancel the rescue mission.
     public void stopSaving() {
         this.isSaving = false;
         this.targetStudent = null;
@@ -132,13 +119,11 @@ public class Student extends Entity {
         this.speed = 2; // Restore normal speed
     }
     
-    /**
-     * Called when the Professor attempts to scare students.
-     */
+    // when professor attempts to scare students 
     public void scare() {
         if (permanentlyRemoved) return; 
         
-        // If the saving student is scared, the rescue mission is immediately canceled
+        // if the saving student is scared, the rescue mission is immediately canceled
         if (isSaving) {
             stopSaving();
         }
@@ -147,27 +132,25 @@ public class Student extends Entity {
         
         if (scareLevel >= 100) {
             if (hasBeenSaved) {
-                // State 2: Scared again after being rescued -> Permanently Removed
+                // scared again after being rescued -> permanently removed
                 permanentlyRemoved = true; 
                 isFrozen = false;
             } else {
-                // State 1: Scared the first time -> Frozen
+                // scared the first time -> frozen
                 isFrozen = true;
                 scareLevel = 100;
                 
-                // CRITICAL: Student is frozen. GamePanel must check and assign a new savior.
+                // gamepanel must check and assign a new savior
             }
         }
     }
     
-    /**
-     * Called when the target student is successfully rescued.
-     */
+    // if successfully rescued 
     public void rescue() {
         if (isFrozen) {
             isFrozen = false;
-            hasBeenSaved = true; // Mark as saved once
-            scareLevel = 50;     // Reset scare level to 50 (Risky state)
+            hasBeenSaved = true; // mark as saved once
+            scareLevel = 50;     // reset scare level to 50
         }
     }
     
@@ -183,45 +166,41 @@ public class Student extends Entity {
         return permanentlyRemoved;
     }
     
-    /**
-     * Helper: Checks if the student is close enough to the target (in the same or adjacent tile)
-     */
+    //helper checks if the student is close enough to the target (in the same or adjacent tile)
     private boolean isNear(Student target) {
         int tileDistanceX = Math.abs((worldX + gp.tileSize/2) - (target.worldX + gp.tileSize/2)) / gp.tileSize;
         int tileDistanceY = Math.abs((worldY + gp.tileSize/2) - (target.worldY + gp.tileSize/2)) / gp.tileSize;
         return tileDistanceX <= 1 && tileDistanceY <= 1; 
     }
     
-    /**
-     * Checks and handles the rescue student's timer and movement logic.
-     */
+    // checks and handles the rescue student's timer and movement logic
     private void checkRescueStatus() {
         if (isSaving && targetStudent != null) {
             
-            // 1. Check if the target still needs rescuing 
+            // check if the target still needs rescuing 
             if (!targetStudent.isFrozen() || targetStudent.isPermanentlyRemoved()) {
                 stopSaving(); // Target is gone or already rescued, cancel mission
                 return;
             }
 
-            // 2. Check if near target and start rescue timer
+            // check if near target and start rescue timer
             if (isNear(targetStudent)) {
                 if (rescueTimer == 0) {
-                    rescueTimer = 1; // Start the timer
+                    rescueTimer = 1; // start the timer
                 } else if (rescueTimer >= RESCUE_DURATION) {
                     targetStudent.rescue();
-                    stopSaving(); // Rescue complete, cancel mission
+                    stopSaving(); // rescue complete, cancel mission
                 } else {
                     rescueTimer++;
                 }
-                // Rescuer remains stationary
+                // rescuer remains stationary
                 direction = "center"; 
             } else {
-                // 3. Move towards the target
+                // move towards the target
                 if (rescueTimer > 0) {
-                    rescueTimer = 0; // If the rescuer moves, reset the timer
+                    rescueTimer = 0; // if the rescuer moves, reset the timer
                 }
-                // Simple pathfinding: move towards the target
+                // move towards the target
                 if (targetStudent.worldX < worldX) direction = "left";
                 else if (targetStudent.worldX > worldX) direction = "right";
                 else if (targetStudent.worldY < worldY) direction = "up";
@@ -230,10 +209,8 @@ public class Student extends Entity {
         }
     }
     
-    // =========================================================
-
     public void setAction() {
-        // Only unfrozen, unremoved, and non-saving students execute fleeing/random movement
+        // only unfrozen, unremoved, and non-saving students execute fleeing/random movement
         if (isFrozen || permanentlyRemoved || isSaving) return; 
         
         actionCounter++;
@@ -247,21 +224,21 @@ public class Student extends Entity {
         int detectionRange = gp.tileSize * 5;
         
         if (distance < detectionRange) {
-            // Player is close - prioritize fleeing but with some randomness
-            if (actionCounter >= 30) { // Change direction more frequently when fleeing
+            // player is close - prioritize fleeing but with some randomness
+            if (actionCounter >= 30) { // change direction more frequently when fleeing
                 int fleeChance = random.nextInt(100) + 1;
                 
                 if (fleeChance <= 70) {
                     // 70% chance to flee directly away
                     if (Math.abs(distanceX) > Math.abs(distanceY)) {
-                        // Move horizontally away
+                        // move horizontally away
                         if (gp.player.worldX < worldX) {
                             direction = "right";
                         } else {
                             direction = "left";
                         }
                     } else {
-                        // Move vertically away
+                        // move vertically away
                         if (gp.player.worldY < worldY) {
                             direction = "down";
                         } else {
@@ -271,14 +248,14 @@ public class Student extends Entity {
                 } else {
                     // 30% chance to move perpendicular (helps escape from corners)
                     if (Math.abs(distanceX) > Math.abs(distanceY)) {
-                        // Move vertically
+                        // move vertically
                         if (random.nextBoolean()) {
                             direction = "up";
                         } else {
                             direction = "down";
                         }
                     } else {
-                        // Move horizontally
+                        // move horizontally
                         if (random.nextBoolean()) {
                             direction = "left";
                         } else {
@@ -289,7 +266,7 @@ public class Student extends Entity {
                 actionCounter = 0;
             }
         } else {
-            // Player is far - normal random movement
+            // player is far - normal random movement
             if (actionCounter >= 120) {
                 int i = random.nextInt(100) + 1;
                 
@@ -310,20 +287,20 @@ public class Student extends Entity {
 
     public void update() {
         
-        // NEW: Handle removed/frozen states first, stopping movement/action
+        // handle removed/frozen states first, stopping movement/action
         if (permanentlyRemoved) return;
         if (isFrozen) return;
 
-        // NEW: Handle saving behavior logic (this sets direction and speed)
+        // handle saving behavior logic (this sets direction and speed)
         if (isSaving && targetStudent != null) {
             checkRescueStatus();
         } else {
-            setAction(); // Calls original setAction (fleeing/random)
+            setAction(); // calls original setAction (fleeing/random)
         }
         
-        // If the direction is 'center' (meaning the student is standing still to rescue), skip movement
+        // if the direction is 'center' (meaning the student is standing still to rescue) skip movement
         if (direction.equals("center")) {
-            // Still run animation while standing still
+            // still run animation while standing still
             spriteCounter++;
             if(spriteCounter > 12) {
                 spriteNum = (spriteNum == 1) ? 2 : 1;
@@ -332,13 +309,12 @@ public class Student extends Entity {
             return;
         }
 
-        // --- Original Movement/Collision Logic Follows ---
         collisionOn = false;
         gp.cChecker.checkTile(this);
 
         // If collision detected, try a different direction
         if (collisionOn == true) {
-            // Pick a new random direction when hitting a wall
+            // pick a new random direction when hitting a wall
             int i = random.nextInt(4);
             switch(i) {
                 case 0: direction = "up"; break;
@@ -346,9 +322,9 @@ public class Student extends Entity {
                 case 2: direction = "left"; break;
                 case 3: direction = "right"; break;
             }
-            actionCounter = 0; // Reset counter to try new direction immediately
+            actionCounter = 0; // reset counter to try new direction immediately
         } else {
-            // No collision, move in current direction
+            // no collision, move in current direction
             switch (direction) {
                 case "up":
                     worldY -= speed;
@@ -378,16 +354,16 @@ public class Student extends Entity {
     }
 
     public void draw(Graphics2D g2, Player player) {
-        // NEW: Do not draw if permanently removed
+        // do not draw if permanently removed
         if (permanentlyRemoved) return; 
 
         BufferedImage image = null;
         
-        // Calculate screen position based on player's position
+        // calculate screen position based on player's position
         int screenX = worldX - player.worldX + player.screenX;
         int screenY = worldY - player.worldY + player.screenY;
         
-        // Only draw if student is on screen
+        // only draw if student is on screen
         if (worldX + gp.tileSize > player.worldX - player.screenX &&
             worldX - gp.tileSize < player.worldX + player.screenX &&
             worldY + gp.tileSize > player.worldY - player.screenY &&
@@ -422,41 +398,41 @@ public class Student extends Entity {
                         image = right2;
                     }
                     break;
-                // NEW: Stationary sprite for saving
+                // stationary sprite for saving
                 case "center":
                     image = down1; 
                     break;
             }
 
-            // NEW: State-based drawing logic (replaces original g2.drawImage)
+            // replaces original g2.drawImage
             if (isFrozen) {
-                // Frozen State: Draw gray/semi-transparent overlay
+                // frozen state: draw gray/semi-transparent overlay
                 g2.setColor(new Color(150, 150, 150, 150)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
             } else if (isSaving) {
-                 // Saving State: Draw a different color marker (e.g., blue)
+                 // saving state: draw a different color marker (e.g., blue)
                 g2.setColor(new Color(0, 100, 255, 80)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
                 
-                // Draw rescue timer bar
+                // draw rescue timer bar
                 if (rescueTimer > 0) {
                     g2.setColor(Color.YELLOW);
                     int barWidth = (int)((double)rescueTimer / RESCUE_DURATION * gp.tileSize);
                     g2.fillRect(screenX, screenY - 5, barWidth, 3);
                 }
             } else if (hasBeenSaved) {
-                // Rescued State (Risky State): Draw red filter
+                // rescued state (risky state): draw red filter
                 g2.setColor(new Color(255, 0, 0, 50)); 
                 g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 g2.drawImage(image, screenX, screenY, null);
             } else {
-                // Normal State
+                // normal state
                 g2.drawImage(image, screenX, screenY, null);
             }
             
-            // Draw collision box for debugging (original logic)
+            // draw collision box for debugging (original logic)
             g2.setColor(Color.blue);
             g2.drawRect(screenX + solidArea.x, screenY + solidArea.y, solidArea.width, solidArea.height);
         }
